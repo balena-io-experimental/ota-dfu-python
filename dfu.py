@@ -8,6 +8,7 @@ import sys
 import pexpect
 import optparse
 import time
+import pdb
 
 from intelhex import IntelHex
 from array    import array
@@ -97,9 +98,9 @@ class BleDfuServer(object):
     #--------------------------------------------------------------------------
     # Adjust these handle values to your peripheral device requirements.
     #--------------------------------------------------------------------------
-    ctrlpt_handle      = 0x19
-    ctrlpt_cccd_handle = 0x1a
-    data_handle        = 0x17
+    ctrlpt_handle      = 0x10
+    ctrlpt_cccd_handle = 0x11
+    data_handle        = 0x0e
 
     pkt_receipt_interval = 10
     pkt_payload_size     = 20
@@ -132,7 +133,7 @@ class BleDfuServer(object):
         self.ble_conn.sendline('connect')
 
         try:
-            res = self.ble_conn.expect('\[CON\].*>', timeout=10)
+            res = self.ble_conn.expect('Connection successful', timeout=10)
         except pexpect.TIMEOUT, e:
             print "Connect timeout"
 
@@ -233,7 +234,7 @@ class BleDfuServer(object):
 
         # Verify that command was successfully written
         try:
-            res = self.ble_conn.expect('.* Characteristic value was written successfully', timeout=10)
+            res = self.ble_conn.expect('Characteristic value was written successfully', timeout=10)
         except pexpect.TIMEOUT, e:
             print "State timeout"
 
@@ -245,7 +246,7 @@ class BleDfuServer(object):
 
         # Verify that command was successfully written
         try:
-            res = self.ble_conn.expect('.* Characteristic value was written successfully', timeout=10)
+            res = self.ble_conn.expect('Characteristic value was written successfully', timeout=10)
         except pexpect.TIMEOUT, e:
             print "State timeout"
 
@@ -261,7 +262,7 @@ class BleDfuServer(object):
 
         # Verify that command was successfully written
         try:
-            res = self.ble_conn.expect('.* Characteristic value was written successfully', timeout=10)
+            res = self.ble_conn.expect('Characteristic value was written successfully', timeout=10)
         except pexpect.TIMEOUT, e:
             print "Send PKT_RCPT_NOTIF_REQ timeout"
 
@@ -275,7 +276,7 @@ class BleDfuServer(object):
 
         # Verify that data was successfully written
         try:
-            res = self.ble_conn.expect('.* Characteristic value was written successfully', timeout=10)
+            res = self.ble_conn.expect('Characteristic value was written successfully', timeout=10)
         except pexpect.TIMEOUT, e:
             print "Data timeout"
 
@@ -291,13 +292,13 @@ class BleDfuServer(object):
     # Enable DFU Control Point CCCD (Notifications)
     #--------------------------------------------------------------------------
     def _dfu_enable_cccd(self):
-        cccd_enable_value_array_lsb = convert_uint16_to_array(0x0001)
+        cccd_enable_value_array_lsb = convert_uint16_to_array(0x0001) # TODO, sends 0x0100
         cccd_enable_value_hex_string = convert_array_to_hex_string(cccd_enable_value_array_lsb)
         self.ble_conn.sendline('char-write-req 0x%04x %s' % (self.ctrlpt_cccd_handle, cccd_enable_value_hex_string))
 
         # Verify that CCCD was successfully written
         try:
-            res = self.ble_conn.expect('.* Characteristic value was written successfully', timeout=10)
+            res = self.ble_conn.expect('Characteristic value was written successfully', timeout=10)
         except pexpect.TIMEOUT, e:
             print "CCCD timeout"
 
@@ -315,8 +316,8 @@ class BleDfuServer(object):
         self._dfu_data_send_req(bin_array)
 
     #--------------------------------------------------------------------------
-    # Initialize: 
-    #    Hex: read and convert hexfile into bin_array 
+    # Initialize:
+    #    Hex: read and convert hexfile into bin_array
     #    Bin: read binfile into bin_array
     #--------------------------------------------------------------------------
     def input_setup(self):
@@ -383,7 +384,7 @@ class BleDfuServer(object):
         # Send packet receipt notification interval (currently 10)
         self._dfu_pkt_rcpt_notif_req()
 
-        # Send 'RECEIVE FIRMWARE IMAGE' command to set DFU in firmware receive state. 
+        # Send 'RECEIVE FIRMWARE IMAGE' command to set DFU in firmware receive state.
         self._dfu_state_set_byte(Commands.RECEIVE_FIRMWARE_IMAGE)
 
         '''
@@ -423,7 +424,7 @@ class BleDfuServer(object):
 
 
     #--------------------------------------------------------------------------
-    # Disconnect from peer device if not done already and clean up. 
+    # Disconnect from peer device if not done already and clean up.
     #--------------------------------------------------------------------------
     def disconnect(self):
         self.ble_conn.sendline('exit')
@@ -498,7 +499,6 @@ def main():
                 exit(2)
 
             unpacker = Unpacker()
-
             hexfile, datfile = unpacker.unpack_zipfile(options.zipfile)
 
         else:
@@ -519,7 +519,7 @@ def main():
 
 
         ''' Start of Device Firmware Update processing '''
-
+        #pdb.set_trace()
         ble_dfu = BleDfuServer(options.address.upper(), hexfile, datfile)
 
         # Initialize inputs
@@ -534,10 +534,11 @@ def main():
         # Wait to receive the disconnect event from peripheral device.
         time.sleep(1)
 
-        # Disconnect from peer device if not done already and clean up. 
+        # Disconnect from peer device if not done already and clean up.
         ble_dfu.disconnect()
 
     except Exception, e:
+        print "test"
         print e
         pass
 
@@ -559,4 +560,3 @@ if __name__ == '__main__':
     sys.dont_write_bytecode = True
 
     main()
-
