@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import sys
 
@@ -14,4 +14,3 @@ if sys.version_info[0] >= 3:
 else:
     asbytes = str
     asstr = str
-

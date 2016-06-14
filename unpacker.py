@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import os.path
 import zipfile
@@ -12,7 +12,7 @@ from os.path  import basename
 class Unpacker(object):
 
    #--------------------------------------------------------------------------
-   # 
+   #
    #--------------------------------------------------------------------------
    def unzip(self, zip_src, unzip_dir):
        try:
@@ -24,14 +24,14 @@ class Unpacker(object):
        return True
 
    #--------------------------------------------------------------------------
-   # 
+   #
    #--------------------------------------------------------------------------
    def entropy(self, length):
        return ''.join(random.choice(string.lowercase) for i in range (length))
 
 
    #--------------------------------------------------------------------------
-   # 
+   #
    #--------------------------------------------------------------------------
    def unpack_zipfile(self, zipfile):
 
@@ -69,10 +69,8 @@ class Unpacker(object):
         return hexfile, datfile
 
    #--------------------------------------------------------------------------
-   # 
+   #
    #--------------------------------------------------------------------------
    def delete(self):
        # delete self.unzip_dir and its contents
        shutil.rmtree(self.unzip_dir)
-
-
