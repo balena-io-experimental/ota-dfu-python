@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #
 # Copyright (c) 2005-2013, Alexander Belchenko
 # All rights reserved.

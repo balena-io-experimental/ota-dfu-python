@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 #------------------------------------------------------------------------------
 # DFU Server for Nordic nRF51 based systems.
